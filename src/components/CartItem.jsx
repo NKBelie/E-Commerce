@@ -69,7 +69,7 @@ export default function CartItem({
                     </button>
                 </div>
 
-                <div className="text-right min-w-[80px]">
+                <div className="text-right min-w-20">
                     <p className="font-bold text-gray-900">
                         ${(item.price * item.quantity).toFixed(2)}
                     </p>
