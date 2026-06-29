@@ -1,43 +1,23 @@
 import axios from 'axios';
 
-// Use empty baseURL to leverage Vite proxy in development
-// This avoids CORS issues by proxying through the dev server
-const API_BASE_URL = '';
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
 
-export const apiClient = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    timeout: 10000, // 10 second timeout
-    });
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-    // Request interceptor
-    apiClient.interceptors.request.use(
-    (config) => {
-        // Add auth token if available
-        const token = localStorage.getItem('token');
-        if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-    );
-
-    // Response interceptor
-    apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-        // Clear token on unauthorized
-        localStorage.removeItem('token');
-        // Optionally redirect to login
-        }
-        return Promise.reject(error);
-    }
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) localStorage.removeItem('token');
+    return Promise.reject(error);
+  }
 );
 
 export default apiClient;
