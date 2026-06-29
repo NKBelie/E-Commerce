@@ -10,4 +10,12 @@ export default defineConfig({
     tailwindcss(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://e-comus-api.vercel.app',
+        changeOrigin: true,
+      }
+    }
+  }
 })

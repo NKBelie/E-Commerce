@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://e-comus-api.vercel.app';
+// Use relative path to leverage Vite proxy in development
+// This avoids CORS issues by proxying through the dev server
+const API_BASE_URL = '/api';
 
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,
