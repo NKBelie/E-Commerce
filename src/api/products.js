@@ -1,38 +1,22 @@
-import { apiClient } from './client';
-import { mockFetchProducts, mockFetchProductById, mockFetchCategories } from './mock';
+import apiClient from './client';
 
-export const fetchProducts = async ({ search = '', category = '', page = 1, limit = 12 } = {}) => {
-    try {
-        const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (category) params.append('category', category);
-        params.append('page', page);
-        params.append('limit', limit);
+export const fetchProducts = async ({ search = '', categoryId = '', page = 1, limit = 12 } = {}) => {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (categoryId) params.append('categoryId', categoryId);
+  params.append('page', page);
+  params.append('limit', limit);
 
-        const { data } = await apiClient.get(`/products?${params.toString()}`);
-        return data;
-    } catch (error) {
-        console.warn('API not available, using mock data');
-        return mockFetchProducts({ search, category, page, limit });
-    }
-    };
+  const { data } = await apiClient.get(`/api/products?${params}`);
+  return data;
+};
 
 export const fetchProductById = async (id) => {
-    try {
-        const { data } = await apiClient.get(`/products/${id}`);
-        return data;
-    } catch (error) {
-        console.warn('API not available, using mock data');
-        return mockFetchProductById(id);
-    }
-    };
+  const { data } = await apiClient.get(`/api/products/${id}`);
+  return data;
+};
 
 export const fetchCategories = async () => {
-    try {
-        const { data } = await apiClient.get('/categories');
-        return data;
-    } catch (error) {
-        console.warn('API not available, using mock data');
-        return mockFetchCategories();
-    }
-    };
+  const { data } = await apiClient.get('/api/categories?limit=50');
+  return data;
+};
