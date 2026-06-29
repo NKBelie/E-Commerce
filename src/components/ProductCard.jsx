@@ -10,9 +10,8 @@ function AddToCartButton({ productId }) {
     e.preventDefault();
     try {
       await addToCart(productId, 1);
-      alert('Added to cart!');
     } catch (error) {
-      alert('Failed to add to cart');
+      // Error is already handled in CartContext with toast
     }
   };
 
