@@ -4,6 +4,7 @@ import { fetchProductById } from '../api/products';
 import { useCart } from '../context/CartContext';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import Badge from '../components/Badge';
 
 export default function ProductDetailPage() {
     const { id } = useParams();
@@ -20,9 +21,8 @@ export default function ProductDetailPage() {
     const handleAddToCart = async () => {
         try {
         await addToCart(product.id, 1);
-        alert('Added to cart!');
         } catch (error) {
-        alert('Failed to add to cart');
+        // Error is already handled in CartContext with toast
         }
     };
 
@@ -30,7 +30,7 @@ export default function ProductDetailPage() {
         return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <Loader size="lg" />
             </div>
         </div>
         );
@@ -39,16 +39,15 @@ export default function ProductDetailPage() {
     if (error || !product) {
         return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Card className="p-8 text-center">
-            <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Product not found</h3>
-            <p className="mt-1 text-sm text-gray-500">The product you're looking for doesn't exist or has been removed.</p>
-            <Link to="/" className="mt-4 inline-block">
+            <ErrorMessage
+            title="Product not found"
+            message="The product you're looking for doesn't exist or has been removed."
+            />
+            <div className="mt-4 text-center">
+            <Link to="/">
                 <Button variant="primary">Back to Products</Button>
             </Link>
-            </Card>
+            </div>
         </div>
         );
     }
@@ -86,7 +85,6 @@ export default function ProductDetailPage() {
             <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
             <p className="text-3xl font-bold text-blue-600 mb-6">${product.price?.toFixed(2)}</p>
-            
             <Card className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Description</h2>
                 <p className="text-gray-700 whitespace-pre-wrap">{product.description || 'No description available.'}</p>
@@ -94,9 +92,7 @@ export default function ProductDetailPage() {
 
             {product.category && (
                 <div className="mb-6">
-                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                    {product.category}
-                </span>
+                <Badge variant="primary">{product.category}</Badge>
                 </div>
             )}
 
