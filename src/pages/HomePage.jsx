@@ -8,6 +8,7 @@ import Loader from '../components/Loader';
 import { ProductCardSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
 import EmptyState from '../components/EmptyState';
+import Button from '../components/Button';
 
 export default function HomePage() {
     const [search, setSearch] = useState('');
