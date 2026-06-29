@@ -14,6 +14,7 @@ A modern, fully-functional e-commerce web application built with React, Tailwind
 ## Features
 
 ### Product Catalog
+
 - Browse products with responsive grid layout
 - Search products by name/description
 - Filter by category
@@ -22,6 +23,7 @@ A modern, fully-functional e-commerce web application built with React, Tailwind
 - Loading, error, and empty states
 
 ### Shopping Cart
+
 - Add products to cart
 - Update item quantities
 - Remove items from cart
@@ -29,12 +31,14 @@ A modern, fully-functional e-commerce web application built with React, Tailwind
 - Cart persists across page refreshes (server-backed)
 
 ### Checkout & Orders
+
 - Complete checkout flow with shipping and payment forms
 - Form validation with error messages
 - Order confirmation
 - Order history page with status indicators
 
 ### UI/UX
+
 - Fully responsive design (mobile, tablet, desktop)
 - Consistent design system with reusable components
 - Loading spinners and skeleton states
@@ -43,7 +47,7 @@ A modern, fully-functional e-commerce web application built with React, Tailwind
 
 ## Project Structure
 
-```
+```text
 src/
 ├── api/                    # API layer
 │   ├── client.js          # Axios instance with interceptors
@@ -78,22 +82,26 @@ src/
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd e-commerce
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file in the root directory (already configured):
+
 ```env
 VITE_API_BASE_URL=https://e-comus-api.vercel.app
 ```
 
 4. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -117,12 +125,14 @@ npm run preview
 ### State Management
 
 **Server State (TanStack Query)**
+
 - All data from the API (products, cart, orders) is managed by TanStack Query
 - Uses descriptive query keys for caching and invalidation
 - Example: `['products', { search, category, page }]`
 - Mutations use `useMutation` with cache invalidation
 
-**UI State (React)**
+-**UI State (React)**
+
 - Search input values, form data, and UI toggles use `useState`
 - Cart operations use Context API for global access
 - No duplication of server data in component state
@@ -147,6 +157,7 @@ npm run preview
 ### TanStack Query Usage
 
 **Reading Data (useQuery):**
+
 ```javascript
 const { data, isLoading, error } = useQuery({
   queryKey: ['products', { search, category, page }],
@@ -155,6 +166,7 @@ const { data, isLoading, error } = useQuery({
 ```
 
 **Writing Data (useMutation):**
+
 ```javascript
 const mutation = useMutation({
   mutationFn: placeOrder,
@@ -163,11 +175,13 @@ const mutation = useMutation({
     navigate('/orders');
   },
 });
+
 ```
 
 ### Cart State Management
 
 The cart uses a hybrid approach:
+
 - **Server state**: Cart data fetched from API and cached in TanStack Query
 - **Local state**: CartContext provides convenient methods and derived values (total, count)
 - **Persistence**: Cart survives page refresh via API
