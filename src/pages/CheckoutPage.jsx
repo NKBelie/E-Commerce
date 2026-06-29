@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
 import { placeOrder } from '../api/orders';
 import { useCart } from '../context/CartContext';
 import Button from '../components/Button';
@@ -10,25 +10,48 @@ import Card from '../components/Card';
 export default function CheckoutPage() {
     const { items, cartTotal, clearCart } = useCart();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        address: '',
-        city: '',
-        zipCode: '',
-        cardNumber: '',
-        expiryDate: '',
-        cvv: '',
-    });
-    const [errors, setErrors] = useState({});
+    const queryClient = useQueryClient();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
 
     const placeOrderMutation = useMutation({
         mutationFn: placeOrder,
         onSuccess: () => {
-        clearCart();
-        navigate('/orders');
+            clearCart();
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
+            navigate('/orders');
         },
     });
+
+    const onSubmit = (data) => {
+        const orderData = {
+            customer: {
+                name: data.name,
+                email: data.email,
+                address: data.address,
+                city: data.city,
+                zipCode: data.zipCode,
+            },
+            payment: {
+                cardNumber: data.cardNumber,
+                expiryDate: data.expiryDate,
+                cvv: data.cvv,
+            },
+            items: items.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+            })),
+            total: cartTotal,
+        };
+
+        placeOrderMutation.mutate(orderData);
+    };
 
     if (items.length === 0 && !placeOrderMutation.isSuccess) {
         return (
@@ -43,57 +66,6 @@ export default function CheckoutPage() {
         </div>
         );
     }
-
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
-        if (!formData.email.trim()) newErrors.email = 'Email is required';
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-        if (!formData.address.trim()) newErrors.address = 'Address is required';
-        if (!formData.city.trim()) newErrors.city = 'City is required';
-        if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
-        if (!formData.cardNumber.trim()) newErrors.cardNumber = 'Card number is required';
-        if (!formData.expiryDate.trim()) newErrors.expiryDate = 'Expiry date is required';
-        if (!formData.cvv.trim()) newErrors.cvv = 'CVV is required';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-
-        const orderData = {
-        customer: {
-            name: formData.name,
-            email: formData.email,
-            address: formData.address,
-            city: formData.city,
-            zipCode: formData.zipCode,
-        },
-        payment: {
-            cardNumber: formData.cardNumber,
-            expiryDate: formData.expiryDate,
-            cvv: formData.cvv,
-        },
-        items: items.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-        })),
-        total: cartTotal,
-        };
-
-        placeOrderMutation.mutate(orderData);
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-        setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -121,45 +93,41 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                         label="Full Name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        error={errors.name}
+                        {...register('name', { required: 'Name is required' })}
+                        error={errors.name?.message}
                         placeholder="John Doe"
                     />
                     <Input
                         label="Email"
                         type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
+                        {...register('email', {
+                            required: 'Email is required',
+                            pattern: {
+                                value: /\S+@\S+\.\S+/,
+                                message: 'Email is invalid',
+                            },
+                        })}
+                        error={errors.email?.message}
                         placeholder="john@example.com"
                     />
                     <div className="md:col-span-2">
                         <Input
                         label="Address"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        error={errors.address}
+                        {...register('address', { required: 'Address is required' })}
+                        error={errors.address?.message}
                         placeholder="123 Main St"
                         />
                     </div>
                     <Input
                         label="City"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        error={errors.city}
+                        {...register('city', { required: 'City is required' })}
+                        error={errors.city?.message}
                         placeholder="New York"
                     />
                     <Input
                         label="ZIP Code"
-                        name="zipCode"
-                        value={formData.zipCode}
-                        onChange={handleChange}
-                        error={errors.zipCode}
+                        {...register('zipCode', { required: 'ZIP code is required' })}
+                        error={errors.zipCode?.message}
                         placeholder="10001"
                     />
                     </div>
@@ -172,27 +140,21 @@ export default function CheckoutPage() {
                     <div className="md:col-span-2">
                         <Input
                         label="Card Number"
-                        name="cardNumber"
-                        value={formData.cardNumber}
-                        onChange={handleChange}
-                        error={errors.cardNumber}
+                        {...register('cardNumber', { required: 'Card number is required' })}
+                        error={errors.cardNumber?.message}
                         placeholder="1234 5678 9012 3456"
                         />
                     </div>
                     <Input
                         label="Expiry Date"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleChange}
-                        error={errors.expiryDate}
+                        {...register('expiryDate', { required: 'Expiry date is required' })}
+                        error={errors.expiryDate?.message}
                         placeholder="MM/YY"
                     />
                     <Input
                         label="CVV"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleChange}
-                        error={errors.cvv}
+                        {...register('cvv', { required: 'CVV is required' })}
+                        error={errors.cvv?.message}
                         placeholder="123"
                     />
                     </div>
