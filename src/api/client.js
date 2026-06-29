@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Use relative path to leverage Vite proxy in development
+// Use empty baseURL to leverage Vite proxy in development
 // This avoids CORS issues by proxying through the dev server
-const API_BASE_URL = '/api';
+const API_BASE_URL = '';
 
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,

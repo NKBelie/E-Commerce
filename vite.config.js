@@ -12,7 +12,19 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/api': {
+      '/products': {
+        target: 'https://e-comus-api.vercel.app',
+        changeOrigin: true,
+      },
+      '/categories': {
+        target: 'https://e-comus-api.vercel.app',
+        changeOrigin: true,
+      },
+      '/cart': {
+        target: 'https://e-comus-api.vercel.app',
+        changeOrigin: true,
+      },
+      '/orders': {
         target: 'https://e-comus-api.vercel.app',
         changeOrigin: true,
       }
